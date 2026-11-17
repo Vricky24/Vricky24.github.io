@@ -1,22 +1,332 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>vricky</title>
-<style>
-body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#faf8f5;color:#2b2622}
-main{text-align:center;padding:2rem}
-h1{font-size:2.6rem;margin:0 0 .5rem;letter-spacing:.02em}
-p{color:#7a6f63;margin:.25rem 0}
-.dot{color:#c8873a}
-</style>
-</head>
-<body>
-<main>
-<h1>vricky<span class="dot">.</span></h1>
-<p>你好，这里是 vricky 的小站。</p>
-<p>网站建设中，先占个位置。</p>
-</main>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="vricky 的个人工具门户：金融监管处罚查询、GitHub、联系方式与筹备中的小工具。" />
+    <link rel="icon" href="data:," />
+    <title>vricky · 工具门户</title>
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+
+      :root {
+        --bg: #f4f5f2;
+        --surface: #ffffff;
+        --surface-2: #eceee9;
+        --ink: #1c2320;
+        --ink-soft: #4c5751;
+        --ink-faint: #77837c;
+        --line: #d9ddd6;
+        --accent: #0e6b4f;
+        --accent-ink: #0a513c;
+        --accent-soft: #e2efe9;
+        --amber: #9a6206;
+        --amber-soft: #f6ecd7;
+        --shadow: 0 1px 2px rgba(28, 35, 32, .05), 0 10px 28px -18px rgba(28, 35, 32, .28);
+        --radius: 14px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121614;
+          --surface: #1b201d;
+          --surface-2: #232a26;
+          --ink: #e8ece9;
+          --ink-soft: #aeb8b2;
+          --ink-faint: #7e8a83;
+          --line: #2e3631;
+          --accent: #3ec79b;
+          --accent-ink: #7fdabb;
+          --accent-soft: #17352b;
+          --amber: #e0aa4e;
+          --amber-soft: #3a2f18;
+          --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 12px 30px -18px rgba(0, 0, 0, .6);
+        }
+      }
+
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+      .wrap {
+        width: 100%;
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ---------- Header ---------- */
+      header { padding: 72px 0 40px; }
+      .domain {
+        font-size: 13px;
+        letter-spacing: .14em;
+        color: var(--accent);
+        font-weight: 600;
+        margin: 0 0 14px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(56px, 13vw, 96px);
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      h1 .dot { color: var(--accent); }
+      .tagline {
+        margin: 20px 0 0;
+        font-size: clamp(17px, 4.4vw, 21px);
+        color: var(--ink-soft);
+        max-width: 30em;
+      }
+      .rule {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 0;
+      }
+
+      /* ---------- Section label ---------- */
+      .section-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 34px 0 16px;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .06em;
+      }
+      .section-head .count {
+        font-size: 12.5px;
+        color: var(--ink-faint);
+      }
+
+      /* ---------- Cards ---------- */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        padding-bottom: 8px;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: var(--shadow);
+        min-height: 44px;
+      }
+      a.card { transition: border-color .18s ease, transform .18s ease; }
+      a.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+      a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .card.featured { grid-column: 1 / -1; }
+
+      .card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .icon {
+        width: 42px; height: 42px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: var(--accent-soft);
+        color: var(--accent-ink);
+      }
+      .icon svg { width: 22px; height: 22px; display: block; }
+      .icon.neutral { background: var(--surface-2); color: var(--ink-soft); }
+
+      .arrow {
+        flex: none;
+        color: var(--ink-faint);
+        font-size: 18px;
+        line-height: 1;
+        padding-top: 4px;
+        transition: color .18s ease, transform .18s ease;
+      }
+      a.card:hover .arrow { color: var(--accent); transform: translate(2px, -2px); }
+
+      .card h3 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+      .card.featured h3 { font-size: 23px; }
+      .card p {
+        margin: 0;
+        font-size: 14.5px;
+        color: var(--ink-soft);
+      }
+      .card .url {
+        font-size: 12.5px;
+        color: var(--ink-faint);
+        word-break: break-all;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        align-self: flex-start;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-ink);
+      }
+      .badge .pulse {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex: none;
+      }
+      .badge.soon {
+        background: var(--amber-soft);
+        color: var(--amber);
+      }
+      .card.soon { background: transparent; box-shadow: none; border-style: dashed; }
+      .card.soon h3 { color: var(--ink-soft); }
+
+      /* ---------- Footer ---------- */
+      footer {
+        margin-top: auto;
+        padding: 44px 0 34px;
+      }
+      footer .inner {
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        justify-content: space-between;
+        font-size: 13px;
+        color: var(--ink-faint);
+      }
+      footer a { color: var(--ink-faint); text-decoration: none; padding: 4px 0; display: inline-block; }
+      footer a:hover { color: var(--accent); }
+
+      @media (max-width: 560px) {
+        header { padding: 52px 0 32px; }
+        .grid { grid-template-columns: 1fr; }
+        .card { padding: 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        a.card, .arrow { transition: none; }
+        a.card:hover { transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="domain mono">VRICKY.LOC.CC</p>
+        <h1>vricky<span class="dot">.</span></h1>
+        <p class="tagline">自己攒的小工具，都放在这儿了。</p>
+      </header>
+
+      <hr class="rule" />
+
+      <div class="section-head">
+        <h2>工具与入口</h2>
+        <span class="count mono">3 个可用 · 2 个筹备中</span>
+      </div>
+
+      <main class="grid">
+        <!-- 金融监管处罚查询 -->
+        <a class="card featured" href="https://vricky.tail57bd4c.ts.net/" target="_blank" rel="noopener">
+          <div class="card-top">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M5 6h14"/><path d="M12 6v3"/><path d="M6.5 6 3.8 12a3.4 3.4 0 0 0 5.4 0L6.5 6Z"/><path d="M17.5 6 14.8 12a3.4 3.4 0 0 0 5.4 0L17.5 6Z"/><path d="M12 13v5"/><path d="M8.5 21h7"/><path d="M12 18v3"/></svg>
+            </span>
+            <span class="arrow" aria-hidden="true">↗</span>
+          </div>
+          <h3>金融监管处罚查询</h3>
+          <p>查国家金融监督管理总局公开的行政处罚与行政许可。</p>
+          <span class="badge"><span class="pulse" aria-hidden="true"></span>已收录文件 2,880 份 · 处罚 453 条</span>
+        </a>
+
+        <!-- GitHub -->
+        <a class="card" href="https://github.com/Vricky24" target="_blank" rel="noopener">
+          <div class="card-top">
+            <span class="icon neutral" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            </span>
+            <span class="arrow" aria-hidden="true">↗</span>
+          </div>
+          <h3>GitHub</h3>
+          <p>代码仓库和折腾记录都在这里。</p>
+          <span class="url mono">github.com/Vricky24</span>
+        </a>
+
+        <!-- 联系我 -->
+        <a class="card" href="mailto:vrickylx@outlook.com">
+          <div class="card-top">
+            <span class="icon neutral" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
+            </span>
+            <span class="arrow" aria-hidden="true">↗</span>
+          </div>
+          <h3>联系我</h3>
+          <p>有事邮件联系。</p>
+          <span class="url mono">vrickylx@outlook.com</span>
+        </a>
+
+        <!-- 筹备中：AI 生图生视频 -->
+        <article class="card soon" aria-label="AI 生图生视频，筹备中">
+          <div class="card-top">
+            <span class="icon neutral" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m5 19 5.2-5.2a1.8 1.8 0 0 1 2.6 0L19 20"/></svg>
+            </span>
+            <span class="badge soon">筹备中</span>
+          </div>
+          <h3>AI 生图生视频</h3>
+          <p>用 AMD 云端 GPU 跑 ComfyUI，出图出片的工作台。</p>
+        </article>
+
+        <!-- 筹备中：全网比价 -->
+        <article class="card soon" aria-label="全网比价，筹备中">
+          <div class="card-top">
+            <span class="icon neutral" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 3.5h6.6l10.4 10.4a2 2 0 0 1 0 2.8l-3.7 3.7a2 2 0 0 1-2.8 0L3.5 10V3.5Z"/><circle cx="8" cy="8" r="1.4"/></svg>
+            </span>
+            <span class="badge soon">筹备中</span>
+          </div>
+          <h3>全网比价</h3>
+          <p>淘宝、京东、拼多多的到手价横向对比，再看看离历史低价还有多远。</p>
+        </article>
+      </main>
+
+      <footer>
+        <div class="inner">
+          <span>© 2026 vricky · vricky.loc.cc</span>
+          <a href="mailto:vrickylx@outlook.com">vrickylx@outlook.com</a>
+        </div>
+      </footer>
+    </div>
+  </body>
 </html>
